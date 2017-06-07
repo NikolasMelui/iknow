@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Closures_player</title>
+</head>
+
+<body>
+  <h1 style="cursor: pointer;" id="addPlayer">Add player</h1>
+  <div id="players"></div>
+  <script>
+    var addPlayer = document.getElementById('addPlayer')
+    var playersDiv = document.getElementById('players')
+
+    function Player () {
+      Player.num++
+      this.name = 'player_' + Player.num
+      this.num = 1
+      this.incrementNum = function () {
+        return this.num++
+      }
+    }
+
+    Player.num = 0
+    var playersArr = []
+
+    addPlayer.onclick = function () {
+      var curPlayer = createPlayer()
+      addPlayerDiv(curPlayer)
+      curPlayer.onclick = curPlayer.div.onclick = function () {
+        console.log(curPlayer.name + ' called ' + curPlayer.incrementNum() + ' times.')
+      }
+    }
+
+    function createPlayer () {
+      var player = new Player()
+      playersArr[player.num] = player
+      // console.log(playersArr) // Players debugger
+      return player
+    }
+
+    function addPlayerDiv (player) {
+      var curEl = document.createElement('div')
+      curEl.id = player.name
+      curEl.className = 'player'
+      curEl.innerHTML = '<h1>' + player.name + '</h1>'
+      playersDiv.appendChild(curEl)
+      player.div = document.getElementById(player.name)
+      playersDiv[player.num] = player.div
+    }
+
+  </script>
+
+  <style media="screen">
+    /*green: #528f3b;*/
+
+    .player:hover {
+      color: #e35a77;
+      cursor: pointer;
+    }
+
+    .player:active {
+      color: #b43b55;
+    }
+
+  </style>
+</body>
+
+</html>

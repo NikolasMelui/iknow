@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Prototypes</title>
+</head>
+
+<body>
+  <div class="main">
+    <h1>Prototypes!</h1>
+  </div>
+  <script>
+    var Foo = function () {
+      // Происходит неявное присваивание вида:
+      // this.__proto__ = Foo.prototype
+    }
+    var boo = new Foo()
+    console.log(boo.__proto__ === Foo.prototype)
+    // Описанное выше свойство __proto__ не кроссбраузерное. Оно отбражается в Chrome, Firefox и ещё в нескольких современных браузерах, но в старых оно может "буксануть" и ничего работать не будет, поэтому стоит избегать его использования.
+
+    // По своей сути прототипное наследование не сильно отличается от классического (классового), базовые конструкции и сама логика наследования похожи, отличается только синтаксис и "фишки", завязанные на замыкания и прочем "js-сахаре".
+
+    var animal = {
+      name: 'animal'
+    }
+    var Wolf = function () {
+      // this.name = 'wolf'
+      // Если раскоментировать это, то свойство name перезапишется
+    }
+    Wolf.prototype = animal
+    var wolfOne = new Wolf()
+    console.log(wolfOne)
+
+    Wolf.prototype.roar = function () {
+      console.log('Roooooaaaarrrr!')
+    }
+    wolfOne.roar()
+
+    var protoOfWolf = Object.getPrototypeOf(wolfOne)
+    console.log(protoOfWolf)
+
+    console.log(protoOfWolf.hasOwnProperty('name'))
+
+    for (var key in wolfOne) {
+      if (!Object.hasOwnProperty(key)) continue
+      console.log(key + ' = ' + wolfOne[key])
+    }
+
+    var TestFunc = function () {
+      this.testProp = 'testProp'
+      var testObj = new TestFunc()
+      testObj.prototype = {}
+      console.log(testObj.prototype.constructor === Object)
+    }
+
+
+
+  </script>
+</body>
+
+</html>

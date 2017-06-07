@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Promises</title>
+</head>
+
+<body>
+  <h1>Promises!</h1>
+
+  <script>
+    let promise = new Promise((resolve, reject) => {
+      let num = Math.random()
+      num > 0.5 ? resolve(num) : reject(new Error('Low number'))
+      console.log(`Before first promise iteration num is ${num}`)
+    })
+
+    promise
+      .then(
+        function (num) {
+          let newNum = num + 2
+          newNum > 0.2 ? num : num + 0.2
+          console.log(`After first promise iteration num is ${num}`)
+          return newNum
+        },
+        function (error) {
+          console.error(error)
+        }
+      )
+      .then(
+        function (num) {
+          let newNum = num + 2
+          newNum / 2.2 > 0.2 ? newNum : newNum + 0.2
+          console.log(`After second promise iteration num is ${num}`)
+          return newNum
+        }
+      )
+      .then(
+        function (newNum) {
+          console.log(`After third promise iteration num is ${newNum}\nI'm so tired, sorry, you won. I'm going to sleep. Bb))`)
+        }
+      )
+
+  </script>
+</body>
+
+</html>
