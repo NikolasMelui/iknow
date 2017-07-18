@@ -1,5 +1,4 @@
-let phrases = require('../db');
-db.connect();
+let db = require('db');
 
 function User(name) {
   this.name = name;
