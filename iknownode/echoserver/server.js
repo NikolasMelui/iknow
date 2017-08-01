@@ -8,7 +8,7 @@ var urlParsed = url.parse(req.url, true);
 console.log(urlParsed);
 // Парсим URL
 if(urlParsed.pathname == '/echo' && urlParsed.query.message) {
-  res.end(urlParsed.query.message);
+  res.end(urlParsed.query.message + ' and supervisor is working!');
 } else {
   res.statusCode = 404;
   res.end('Page not found!');
