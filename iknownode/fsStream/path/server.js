@@ -15,15 +15,16 @@ http.createServer((req, res) => {
 }).listen(3000);
 
 // Функция-заглушка для проверки доступа до файла '?secret=o_O'
-checkAccess(req) => return url.parse(req.url, true).query.secret == 'o_O';
+let checkAccess = (req) => { return url.parse(req.url, true).query.secret == 'o_O'; }
 
-sendFileSafe(filePath, res) => {
+let sendFileSafe = (filePath, res) => {
+
   // Проверка на корректность урла, декодируем его и смотрим
   try {
-    filePath = decoderURIComponent(filePath);
+    filePath = decodeURIComponent(filePath);
   } catch (e) {
     res.statusCode = 400;
-    res.end('Bad request!');
+    res.end('Bad request11!');
     return;
   }
 
@@ -57,12 +58,25 @@ sendFileSafe(filePath, res) => {
 }
 
 // Неправильный (безпоточный) способ полностью прочитать файл и вывести его нам
-sendFile(filePath, res) => {
-  fs.readFile(filePath, (err, content) => {
-    if (err) throw err;
-
+let sendFile = (filePath, res) => {
+  let stream = new fs.ReadStream(filePath);
+  let data;
+  stream.on('readable', () => {
+  data = stream.read();
+  res.end(data);
+  });
     let mime = require('mime').lookup(filePath);
     res.setHeader('Content-Type', mime + '; charset=utf-8');
-    res.end(content);
-  });
 }
+
+
+// let sendFile = (filePath, res) => {
+//   fs.readFile(filePath, (err, content) => {
+//     if(err) throw err;
+//
+//     let mime = require('mime').lookup(filePath);
+//     res.setHeader('Content-Type', mime + '; charset=utf-8');
+//     res.end(content);
+//   });
+//
+// }
