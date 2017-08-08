@@ -41,7 +41,7 @@ let sendFileSafe = (filePath, res) => {
   // Проверка на запрос правильного пути
   if (filePath.indexOf(ROOT) != 0) {
     res.statusCode = 404;
-    res.end('File not found');
+    res.end('File not found1');
     return;
   }
 
@@ -53,21 +53,39 @@ let sendFileSafe = (filePath, res) => {
     return;
     }
 
-    sendFile(filePath, res);
+    let file = new fs.ReadStream(filePath);
+    console.log('seccess');
+    sendFile(file, res);
   });
 }
 
-// Неправильный (безпоточный) способ полностью прочитать файл и вывести его нам
-let sendFile = (filePath, res) => {
-  let stream = new fs.ReadStream(filePath);
-  let data;
-  stream.on('readable', () => {
-  data = stream.read();
-  res.end(data);
-  });
-    let mime = require('mime').lookup(filePath);
-    res.setHeader('Content-Type', mime + '; charset=utf-8');
+let sendFile = (file, res) => {
+
+  let write = () => {
+  let fileContent = file.read(); // Считывать данные после получения
+    if(fileContent && !res.write(fileContent)) { // Если подключение быстрое и устойчивое отправляем данные в ответ
+      file.removeListener('readable', write);
+      res.once('drain', () => { // При необходимости подождать
+        file.on('readable', write); // Продолжить запись в файл
+        write(); // начать писать новый кусок (и так пока файл не кончится)
+      });
+    }
+  }
+  file.on('readable', write); // Ждём данные от сервера
+  file.on('end', () => res.end());
 }
+
+// Неправильный (безпоточный) способ полностью прочитать файл и вывести его нам
+// let sendFile = (filePath, res) => {
+//   let stream = new fs.ReadStream(filePath);
+//   let data;
+//   stream.on('readable', () => {
+//   data = stream.read();
+//   res.end(data);
+//   });
+//     let mime = require('mime').lookup(filePath);
+//     res.setHeader('Content-Type', mime + '; charset=utf-8');
+// }
 
 
 // let sendFile = (filePath, res) => {
@@ -78,5 +96,4 @@ let sendFile = (filePath, res) => {
 //     res.setHeader('Content-Type', mime + '; charset=utf-8');
 //     res.end(content);
 //   });
-//
 // }
