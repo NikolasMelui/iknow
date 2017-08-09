@@ -56,44 +56,30 @@ let sendFileSafe = (filePath, res) => {
     let file = new fs.ReadStream(filePath);
     console.log('seccess');
     sendFile(file, res);
+    var cat = new Object();
+    console.log(cat);
   });
 }
 
 let sendFile = (file, res) => {
 
-  let write = () => {
-  let fileContent = file.read(); // Считывать данные после получения
-    if(fileContent && !res.write(fileContent)) { // Если подключение быстрое и устойчивое отправляем данные в ответ
-      file.removeListener('readable', write);
-      res.once('drain', () => { // При необходимости подождать
-        file.on('readable', write); // Продолжить запись в файл
-        write(); // начать писать новый кусок (и так пока файл не кончится)
-      });
-    }
+  file.pipe(res);
+
+  file.on('error', function (err) {
+    res.statusCode = 500;
+    res.end('Server Error');
+    console.log(err);
+  });
+
+    file.on('open', function () {
+      console.log('open');
+    });
+    file.on('close', function () {
+      console.log('close');
+    });
+
+    res.on('close', function () {
+      file.destroy();
+    });
+
   }
-  file.on('readable', write); // Ждём данные от сервера
-  file.on('end', () => res.end());
-}
-
-// Неправильный (безпоточный) способ полностью прочитать файл и вывести его нам
-// let sendFile = (filePath, res) => {
-//   let stream = new fs.ReadStream(filePath);
-//   let data;
-//   stream.on('readable', () => {
-//   data = stream.read();
-//   res.end(data);
-//   });
-//     let mime = require('mime').lookup(filePath);
-//     res.setHeader('Content-Type', mime + '; charset=utf-8');
-// }
-
-
-// let sendFile = (filePath, res) => {
-//   fs.readFile(filePath, (err, content) => {
-//     if(err) throw err;
-//
-//     let mime = require('mime').lookup(filePath);
-//     res.setHeader('Content-Type', mime + '; charset=utf-8');
-//     res.end(content);
-//   });
-// }
