@@ -12,7 +12,27 @@ http.createServer((req, res) => {
       subscribe(req, res);
       break;
     case '/publish':
-      publish('...');
+      var body = '';
+
+      req
+        .on('readable', () => {
+          body += req.read();
+          if (body.length > 1e4) {
+            res.statusCode = 413;
+            res.end('Msg is 2 long');
+          }
+        })
+        .on('end', () => {
+          try {
+            body = JSON.parse(body);
+          } catch (e) {
+            res.statusCode = 400;
+            res.end('Bad request');
+            return;
+          }
+            publish(body);
+            res.end('ok');
+        });
       break;
     default:
       res.statusCode = 404;
