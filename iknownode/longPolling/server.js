@@ -1,8 +1,6 @@
 const http = require('http');
 const fs = require('fs');
 
-let clients = [];
-
 http.createServer((req, res) => {
   switch (req.url) {
     case '/':
@@ -12,26 +10,20 @@ http.createServer((req, res) => {
       subscribe(req, res);
       break;
     case '/publish':
-      var body = '';
+      let body = '';
 
-      req
-        .on('readable', () => {
-          body += req.read();
+      req.on('readable', () => {
+          let bodyTmp = req.read();
+          (bodyTmp!==null) ? body += bodyTmp : bodyTmp;
           if (body.length > 1e4) {
             res.statusCode = 413;
             res.end('Msg is 2 long');
           }
-        })
-        .on('end', () => {
-          try {
-            body = JSON.parse(body);
-          } catch (e) {
-            res.statusCode = 400;
-            res.end('Bad request');
-            return;
-          }
-            publish(body);
-            res.end('ok');
+        });
+        req.on('end', () => {
+          body = JSON.parse(body);
+          publish(body.message);
+          res.end('ok');
         });
       break;
     default:
@@ -53,17 +45,20 @@ let sendFile = (fileName, res) => {
     });
 }
 
+let clients = [];
+
 let subscribe = (req, res) => {
   console.log('subscribe');
   clients.push(res);
+  res.on('close', () => {
+    clients.splice(clients.indexOf(res), 1);
+  });
 }
 
 let publish = (message) => {
-  console.log('publish \'%s\'', message);
+  console.log(`Publish ${message}`);
   clients.forEach((res) => {
-    console.log(message);
     res.end(message);
-    console.log(clients);
   });
-clients = [];
+  // clients = [];
 }
