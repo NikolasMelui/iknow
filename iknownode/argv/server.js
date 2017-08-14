@@ -1,4 +1,4 @@
 const http = require('http');
-console.log(process.argv);
+var opts = (require('optimist').argv);
 
-http.createServer((req, res) => res.end('The server is running')).listen(3000);
+http.createServer((req, res) => res.end('The server is running')).listen(opts.port);
